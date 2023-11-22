@@ -1,0 +1,7 @@
+# Ignorar archivos de experimentación de caro
+/Caro's_files/
+__pycache__/
+
+# Ignorar recursos encontrados para crear archivo *.SQL para visualizaciones
+/Crear un SQL
+*.pem

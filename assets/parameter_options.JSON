@@ -1,0 +1,128 @@
+{
+  "dropdown_params":{
+    "gender": [
+      {"label": "Male", "value": 1},
+      {"label": "Female", "value": 0}
+    ],
+    "age_at_enrollment":[
+      {"label": "Less than 20", "value": 1},
+      {"label": "20 - 24", "value": 2},
+      {"label": "25 - 29", "value": 3},
+      {"label": "30 - 34", "value": 4},
+      {"label": "35 - 39", "value": 5},
+      {"label": "40 or more", "value": 6}
+    ],
+    "occup_fin_res_party": [
+      {"label": "Armed Forces Professions", "value": 0},
+      {"label": "Managers", "value": 1},
+      {"label": "Professionals", "value": 2},
+      {"label": "Technicians and associate professionals", "value": 3},
+      {"label": "Clerical support workers", "value": 4},
+      {"label": "Service and sales workers", "value": 5},
+      {"label": "Skilled agricultural, forestry and fishery workers", "value": 6},
+      {"label": "Craft and related trade workers", "value": 7},
+      {"label": "Plant and machine operators, and assemblers", "value": 8},
+      {"label": "Elementary occupations", "value": 9},
+      {"label": "Student", "value": 10},
+      {"label": "Other", "value": 11}
+    ],
+    "debtor": [
+      {"label": "Yes", "value": 1},
+      {"label": "No", "value": 0}
+    ],
+    "scholarship": [
+      {"label": "Yes", "value": 1},
+      {"label": "No", "value": 0}
+    ],
+    "course": [
+      {"label": "Advertising and Marketing Management", "value": 14},
+      {"label": "Agronomy", "value": 4},
+      {"label": "Animation and Multimedia Design", "value": 2},
+      {"label": "Basic Education", "value": 16},
+      {"label": "Biofuel Production Technologies", "value": 1},
+      {"label": "Communication Design", "value": 5},
+      {"label": "Equiniculture", "value": 8},
+      {"label": "Informatics Engineering", "value": 7},
+      {"label": "Journalism and Communication", "value": 15},
+      {"label": "Management", "value": 9},
+      {"label": "Management (evening attendance)", "value": 17},
+      {"label": "Nursing", "value": 12},
+      {"label": "Oral Hygiene", "value": 13},
+      {"label": "Social Service", "value": 10},
+      {"label": "Social Service (evening attendance)", "value": 3},
+      {"label": "Tourism", "value": 11},
+      {"label": "Veterinary Nursing", "value": 6}
+    ],
+    "admission_grade": [
+      {"label": "Less than 100", "value": 5},
+      {"label": "100 to 120", "value": 6},
+      {"label": "120 to 140", "value": 7},
+      {"label": "140 to 160", "value": 8},
+      {"label": "160 to 180", "value": 9},
+      {"label": "180 or more", "value": 10}
+    ]
+  },
+  "credit_label_ranges": [
+    {"start": 0, "end": 0.1, "label": 1},
+    {"start": 0.1, "end": 0.2, "label": 2},
+    {"start": 0.2, "end": 0.3, "label": 3},
+    {"start": 0.3, "end": 0.4, "label": 4},
+    {"start": 0.4, "end": 0.5, "label": 5},
+    {"start": 0.5, "end": 0.6, "label": 6},
+    {"start": 0.6, "end": 0.7, "label": 7},
+    {"start": 0.7, "end": 0.8, "label": 8},
+    {"start": 0.8, "end": 0.9, "label": 9},
+    {"start": 0.9, "end": 1.0, "label": 10}
+  ],
+  "param_name_mapping":[
+    {
+      "dd_gender": "Gender",
+      "dd_age_at_enrollment": "Age at enrollment",
+      "dd_occup_fin_res_party": "Occupation of the main financially responsible (father or mother)",
+      "dd_debtor": "Debtor",
+      "dd_scholarship": "Scholarship holder",
+      "dd_course": "Course",
+      "dd_admission_grade": "Admission grade"
+    }
+  ],
+  "visualizations_dict": {
+    "course_name": {
+      "33": "Biofuel Production Technologies",
+      "171": "Animation and Multimedia Design",
+      "8014": "Social Service (evening attendance)",
+      "9003": "Agronomy",
+      "9070": "Communication Design",
+      "9085": "Veterinary Nursing",
+      "9119": "Informatics Engineering",
+      "9130": "Equinculture",
+      "9147": "Management",
+      "9238": "Social Service",
+      "9254": "Tourism",
+      "9500": "Nursing",
+      "9556": "Oral Hygiene",
+      "9670": "Advertising and Marketing Management",
+      "9773": "Journalism and Communication",
+      "9853": "Basic Education",
+      "9991": "Management (evening attendance)"
+    },
+    "school_name": {
+      "33": "ESTG",
+      "171": "ESTG",
+      "8014": "ESECS",
+      "9003": "ESAE",
+      "9070": "ESTG",
+      "9085": "ESAE",
+      "9119": "ESTG",
+      "9130": "ESAE",
+      "9147": "ESTG",
+      "9238": "ESECS",
+      "9254": "ESECS",
+      "9500": "ESS",
+      "9556": "ESS",
+      "9670": "ESECS",
+      "9773": "ESECS",
+      "9853": "ESECS",
+      "9991": "ESTG"
+    }
+  }
+}

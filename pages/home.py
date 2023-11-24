@@ -35,18 +35,19 @@ dd_params = all_params.get('dropdown_params', {})
 # Obtener el diccionario de correspondencias
 param_name_mapping = all_params.get('param_name_mapping', {})
 
+# TODO: Habilitar la carga del modelo cuando esté listo
 # Cargar modelo entrenado desde el archivo
-try:
-    with open('assets/modelo_entrenado.pkl', 'rb') as f:
-        loaded_model = pickle.load(f)
-except FileNotFoundError:
-    print("El archivo del modelo no se encontró.")
-except pickle.UnpicklingError:
-    print("Error al cargar el modelo.")
-    loaded_model = None
+# try:
+#     with open('assets/modelo_entrenado.pkl', 'rb') as f:
+#         loaded_model = pickle.load(f)
+# except FileNotFoundError:
+#     print("El archivo del modelo no se encontró.")
+# except pickle.UnpicklingError:
+#     print("Error al cargar el modelo.")
+#     loaded_model = None
 
-# Crea un objeto de inferencia
-infer = VariableElimination(loaded_model)
+# # Crea un objeto de inferencia
+# infer = VariableElimination(loaded_model)
 
 
 
@@ -77,31 +78,6 @@ def create_dd(id, label, options, placeholder, width=12, optionHeight=35):
             placeholder=placeholder,
             optionHeight=optionHeight,
             persistence=True  # Habilitar la persistencia para mantener el estado
-        ),
-    ], width=width)
-
-# Función para crear un botón de información de Bootstrap
-def create_info_btn(button_id, width=1):
-    """
-    Crea un botón de información de Bootstrap.
-
-    Args:
-        button_id (str): Identificador del botón.
-        width (int, optional): Ancho del botón. Defaults to 1.
-
-    Returns:
-        dbc.Col: Botón de información de Bootstrap.
-    """
-    return dbc.Col([
-        html.Button("ℹ️", id=button_id, className="btn btn-info", style={'float': 'right'}),
-        dbc.Popover(
-            [
-                dbc.PopoverHeader("Input Requirements"),
-                dbc.PopoverBody("Please provide values for both 'Approved Credits' and 'Enrolled Credits' to have them factored into the model."),
-            ],
-            id=f"popover-{button_id}",
-            target=button_id,
-            trigger="hover",
         ),
     ], width=width)
 
@@ -157,73 +133,126 @@ layout = html.Div([
         # ACORDEÓN DE MENÚS DESPLEGABLES
         dbc.Accordion([
             
-            # Menú desplegable 1: Información personal
+            # Menú desplegable 1: Información del colegio
+            dbc.AccordionItem(
+                [
+                    # Fila 0
+                    dbc.Row([
+
+                        # COLE_NATURALEZA: Naturaleza del Establecimiento
+                        create_dd('dd_cole_naturaleza', 'Naturaleza', dd_params['cole_naturaleza'], 'Naturaleza', 6),
+
+                        # COLE_CARACTER: Carácter del Establecimiento
+                        create_dd('dd_cole_caracter', 'Carácter', dd_params['cole_caracter'], 'Carácter', 6),
+
+                    ],style={'margin-bottom': '5px'}),
+
+                    # Fila 1
+                    dbc.Row([
+
+                        # COLE_AREA_UBICACION: Área de ubicación de la Sede
+                        create_dd('dd_cole_area_ubicacion', 'Área de ubicación de la Sede', dd_params['cole_area_ubicacion'], 'Área de ubic. de la Sede', 12),
+
+                    ],style={'margin-bottom': '5px'}),
+
+                    # Fila 2
+                    dbc.Row([
+
+                        # COLE_GENERO: Género del Establecimiento
+                        create_dd('dd_cole_genero', 'Género', dd_params['cole_genero'], 'Género', 6),
+
+
+                        # COLE_CALENDARIO: Calendario del Establecimiento
+                        create_dd('dd_cole_calendario', 'Calendario', dd_params['cole_calendario'], 'Calendario', 6),
+
+                    ],style={'margin-bottom': '5px'}),
+
+                    # Fila 3
+                    dbc.Row([
+
+                        # COLE_JORNADA: Jornada del Establecimiento
+                        create_dd('dd_cole_jornada', 'Jornada', dd_params['cole_jornada'], 'Jornada', 6),
+
+                        # COLE_BILINGUE: Indica si el Establecimiento es bilingue o no
+                        create_dd('dd_cole_bilingue', 'Bilingüe', dd_params['cole_bilingue'], 'Bilingüe', 6),
+
+                    ],style={'margin-bottom': '5px'}),
+                       
+                ],
+                title='Información del colegio'
+            ),
+
+
+            # Menú desplegable 2: Información personal y socioeconómica
             dbc.AccordionItem([
 
-                        # Fila 1
-                        dbc.Row([
+                    # Fila 1
+                    dbc.Row([
 
-                            # Gender
-                            create_dd('dd_gender', 'Gender', dd_params['gender'], 'Gender', 6),
+                        # ESTU_GENERO: Género del estudiante
+                        create_dd('dd_estu_genero', 'Género del estudiante', dd_params['estu_genero'], 'Género', 12),
 
-                            # Age at enrollment
-                            create_dd('dd_age_at_enrollment', 'Age at enrollment', dd_params['age_at_enrollment'], 'Age at enrollment', 6),
+                    ],style={'margin-bottom': '5px'}),
 
-                        ],style={'margin-bottom': '5px'}),
+                    html.Hr(),
 
-                    ], title='Información personal'
-                ),
+                    # Fila 2
+                    dbc.Row([
 
-                # Menú desplegable 2: Información socioeconómica
-                dbc.AccordionItem(
-                    [
-                        # Fila 1
-                        dbc.Row([
+                        # FAMI_EDUCACIONMADRE: Nivel educativo de la madre
+                        create_dd('dd_fami_educacionmadre', 'Nivel educativo de la madre', dd_params['fami_educacionmadre'], 'Nivel educativo de la madre', 12),
+                        
+                    ],style={'margin-bottom': '5px'}),
 
-                            # Occupation of financial responsible party (occup_fin_res_party)
-                            create_dd('dd_occup_fin_res_party', 'Occupation of financial responsible party', dd_params['occup_fin_res_party'], 'Occupation of financial responsible party', 12, 55),
+                    # Fila 3
+                    dbc.Row([
 
-                        ],style={'margin-bottom': '5px'}),
+                        # FAMI_EDUCACIONPADRE: Nivel educativo del padre
+                        create_dd('dd_fami_educacionpadre', 'Nivel educativo del padre', dd_params['fami_educacionpadre'], 'Nivel educativo del padre', 12),
 
-                        # Fila 2
-                        dbc.Row([
-                           
-                            # Debtor
-                            create_dd('dd_debtor', 'Debtor', dd_params['debtor'], 'Debtor', 6),
+                    ],style={'margin-bottom': '5px'}),
 
-                            # Scholarship holder (scholarship)
-                            create_dd('dd_scholarship', 'Scholarship holder', dd_params['scholarship'], 'Scholarship holder', 6),
 
-                        ],style={'margin-bottom': '5px'}),
+                    # Fila 4
+                    dbc.Row([
 
-                    ],
-                    title='Información socieconómica'
-                ),
+                        # FAMI_ESTRATOVIVIENDA: Estrato de la vivienda
+                        create_dd('dd_fami_estratovivienda', 'Estrato de vivienda', dd_params['fami_estratovivienda'], 'Estrato', 4),
 
-                # Menú desplegable 3: Información del colegio
-                    dbc.AccordionItem(
-                        [
-                            # Fila 1
-                            dbc.Row([
+                        # FAMI_PERSONASHOGAR: Número de personas en el hogar
+                        create_dd('dd_fami_personashogar', 'Personas en hogar', dd_params['fami_personashogar'], 'N° personas', 4),
 
-                                # Course
-                                create_dd('dd_course', 'Course', dd_params['course'], 'Course'),
+                        # FAMI_CUARTOSHOGAR: Número de cuartos en el hogar
+                        create_dd('dd_fami_cuartoshogar', 'Cuartos en hogar', dd_params['fami_cuartoshogar'], 'N° cuartos', 4),
 
-                            ],style={'margin-bottom': '5px'}),
+                    ],style={'margin-bottom': '5px'}),
 
-                            # Fila 2
-                            dbc.Row([
 
-                                # Admission grade
-                                create_dd('dd_admission_grade', 'Admission grade', dd_params['admission_grade'], 'Admission grade'),
+                    # Filas 5
+                    dbc.Row([
 
-                            ],style={'margin-bottom': '5px'}),
-                                
-                        ],
-                        title='Información del colegio'
-                    ),
+                        # FAMI_TIENECOMPUTADOR: Indica si el hogar tiene computador
+                        create_dd('dd_fami_tienecomputador', '¿Tiene computador?', dd_params['fami_tienecomputador'], 'Tiene computador', 6),
 
-                    
+                        # FAMI_TIENEINTERNET: Indica si el hogar tiene internet
+                        create_dd('dd_fami_tieneinternet', '¿Tiene internet?', dd_params['fami_tieneinternet'], 'Tiene internet', 6),
+
+                    ],style={'margin-bottom': '5px'}),
+
+                    # Filas 6
+                    dbc.Row([
+
+                        # FAMI_TIENEAUTOMOVIL: Indica si el hogar tiene automóvil
+                        create_dd('dd_fami_tieneautomovil', '¿Tiene automóvil?', dd_params['fami_tieneautomovil'], 'Tiene automóvil', 6),
+
+                        # FAMI_TIENELAVADORA: Indica si el hogar tiene lavadora
+                        create_dd('dd_fami_tienelavadora', '¿Tiene lavadora?', dd_params['fami_tienelavadora'], 'Tiene lavadora', 6),
+
+                    ],style={'margin-bottom': '5px'}),
+
+
+                ], title='Información personal y socioeconómica'
+            ),
 
             ],
             id="accordion",

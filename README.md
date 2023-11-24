@@ -11,7 +11,7 @@ gantt
     section 🐴 Caro - Dashboard + Visualizaciones
     🔰 Creación del repo y planeación de dash:2023-10-17 0:00,1d
     🔍 Primera exploración de datos:2023-10-19 0:00,1d
-    🔨 Adaptación de Layout (P2 a P3) - Parte 1:2023-10-21 0:00,36h
+    🔨 Adaptación de Layout (P2 a P3) - Parte 1:2023-10-21 0:00,72h
 ```
 
 ## Requisitos

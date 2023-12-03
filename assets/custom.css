@@ -1,4 +1,9 @@
 .nav-pills .nav-link.active {
     color: #fff;
-    background-color: #6C757D;
+    background-color: #2684BA;
+}
+.Dropdown-Title .Select-value-label {
+    color: #2FA4E7 !important;
+    font-size: large !important;
+    font-weight: bold !important;
 }

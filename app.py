@@ -17,7 +17,6 @@ app.layout = html.Div([
             # Logo y título
             html.A(
                 dbc.Row([
-                    #TODO: Cambiar logo
                     dbc.Col(html.Img(src="./assets/croquis-ANT2.png", height="40px"), width="auto"),
                     dbc.Col(dbc.NavbarBrand("Saber 11° en Antioquia")),
                 ], align="center"),
@@ -27,7 +26,7 @@ app.layout = html.Div([
             dbc.Nav(
                 [
                     dbc.NavItem(dbc.NavLink("🏠 Home", href="/", active="exact")),
-                    # dbc.NavItem(dbc.NavLink("📊 Visualizations", href="/visualizations", active="exact",)),
+                    dbc.NavItem(dbc.NavLink("📊 Visualizations", href="/visualizations", active="exact",)),
                 ],
                 pills=True, 
             ),

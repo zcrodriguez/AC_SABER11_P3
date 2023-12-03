@@ -14,6 +14,7 @@ load_figure_template(templates)
 dash.register_page(__name__, path='/visualizations')
 
 
+
 # ======================================================================================================================
 #                                               CHOROPLETH DE ANTIOQUIA
 # ======================================================================================================================
@@ -25,26 +26,25 @@ with open('assets/MunicipiosVeredas19MB.json', encoding='utf-8') as geojson:
 from geojson_rewind import rewind
 geo_json = rewind(geo_json, rfc7946=False)
 
-# Cargar df del GeoJSON
-df_map = pd.read_csv('assets/MunicipiosVeredas.csv', dtype=str)
 
-# Filtrar los municipios de Antioquia
-df_antioquia = df_map[df_map['DPTO_CCDGO'] == '05']
 
-# Variable dummy para el choropleth
-# TODO: Cambiar por puntajes promedio por prueba por municipio
-df_antioquia = df_antioquia.copy()
-df_antioquia['NEW'] = df_antioquia['MPIO_CCDGO'].astype(int)
+# ======================================================================================================================
+#                                              PROMEDIOS PARA EL CHOROPLETH
+# ======================================================================================================================
+# Importar archivo df_antioquia_promedios.csv
+df_antioquia = pd.read_csv('assets/df_antioquia_promedios.csv', dtype=str)
 
-# Exportar df_antioquia a CSV con codificación UTF-8
-# df_antioquia.to_csv('assets/df_antioquia_2.csv', index=False, encoding='utf-8')
+# ======================================================================================================================
+#                                    BASES DE DATOS PARA LINE CHART DE MUNICIPIO
+# ======================================================================================================================
+df_antioquia_promedios = pd.read_csv('assets/df_antioquia_linechart.csv')
 
+df_colombia = pd.read_csv('assets/df_colombia_linechart.csv')
 
 
 # ======================================================================================================================
 #                                      CHOROPLETH DE ANTIOQUIA v.2 (Objeto gráfico)
 # ======================================================================================================================
-
 # Crear el objeto gráfico de mapa
 fig = go.Figure()
 
@@ -52,12 +52,12 @@ fig = go.Figure()
 fig.add_trace(
     go.Choropleth(
         geojson=geo_json,
-        locations=df_antioquia['DPTOMPIO'],
-        z=df_antioquia['NEW'],
-        featureidkey="properties.DPTOMPIO",
+        locations=df_antioquia['MPIO_CNMBR'],
+        z=df_antioquia['AVG_PUNT_GLOBAL'],
+        featureidkey="properties.MPIO_CNMBR",
         colorscale="Blues",
-        colorbar=dict(title="NEW"),
-        geo="geo",  # Cambia esta línea
+        # colorbar=dict(title="AVG_PUNT_GLOBAL"),
+        geo="geo",
         uirevision='static',
     )
 )
@@ -82,26 +82,72 @@ layout = html.Div([
 
     dbc.Row([
         
-        # Columna izquierda: Choropleth
+        # ---------------------------------------------------------------------------------------------------------------
+        #                                  IZQ: MAPA COROPLÉTICO DE ANTIOQUIA
+        # ---------------------------------------------------------------------------------------------------------------
         dbc.Col([
             dcc.Graph(id="choropleth-ANT", figure=fig),  
         ], width=5),
 
-        # Columna derecha: Dropdown con lista de municipios
+        # ---------------------------------------------------------------------------------------------------------------
+        #                                  DER: TARJETA CON INFORMACIÓN DEL MUNICIPIO
+        # ---------------------------------------------------------------------------------------------------------------
         dbc.Col([
             
-            # Dropdown con lista de municipios
-            dcc.Dropdown(
-                id='dropdown-municipios',
-                options=[{'label': i, 'value': i} for i in df_antioquia['MPIO_CNMBR'].unique()],
+            dbc.Card([
+                
+                # Encabezado de la tarjeta
+                dbc.CardHeader([
+                    
+                    # Logo y dropdown con lista de municipios en la misma línea
+                    html.Div([
+                        
+                        # Logo con id para poder modificarlo con callbacks
+                        html.Img(
+                            src="./assets/croquis-ANT2.png", 
+                            height="40px",
+                            id='flag-img',
+                            style={
+                                "boxShadow": "1px 1px 5px grey",  # Sombras con desplazamiento X, Y y radio
+                            }
+                        ),
+                        
+                        # Dropdown con lista de municipios
+                        dcc.Dropdown(
+                            id='dropdown-municipios',
+                            options=[{'label': municipio, 'value': municipio} for municipio in df_antioquia['MPIO_CNMBR']],
+                            value='MEDELLÍN',
+                            persistence=True,
+                            clearable=False,
+                            style={'Font-size': '12px', 'width': '320px', 'margin-left': '10px'},
+                            className="Dropdown-Title"
+                        ),
+
+                    ], style={'display': 'flex', 'align-items': 'center'})
+                        
+                ]),
+
+                # Cuerpo de la tarjeta
+                dbc.CardBody(
+                    [
+                        html.P("En esta área colocar: Subregión y grado de violencia"),
+                        html.Hr(),
+
+                        # Crear diagrama de linea con puntajes por año (solo graph con id para modificarlo con callbacks)
+                        dbc.Spinner(
+                            dcc.Graph(
+                                id="line-chart-ANT",
+                                config={'displayModeBar': False, 'scrollZoom': False},
+                            ),
+                            size="lg",  # Ajusta el tamaño del spinner según tus preferencias
+                            color="primary",  # Cambia el color del spinner si es necesario
+                        ),
+                    ]
+                ),
+                ],
+                id='div-1'
             ),
-
-            # Separador
-            html.Hr(),
-
-            # Texto con el municipio seleccionado
-            html.Div(id='municipio-seleccionado'),
-    
+            
         ], width=7),
 
     ], style={'padding-left': '20px', 'padding-right': '20px', 'padding-top': '10px'}),
@@ -128,19 +174,26 @@ def update_choropleth(selected_municipio):
     fig.add_trace(
         go.Choropleth(
             geojson=geo_json,
-            locations=df_antioquia['DPTOMPIO'],
-            z=df_antioquia['NEW'],
-            featureidkey="properties.DPTOMPIO",
-            colorscale="blues",
-            colorbar=dict(title="NEW"),
-            geo="geo",  # Cambia esta línea
+            locations=df_antioquia['MPIO_CNMBR'],
+            z=df_antioquia['AVG_PUNT_GLOBAL'],
+            featureidkey="properties.MPIO_CNMBR",
+            colorscale="Blues",
+            # colorbar=dict(title="AVG_PUNT_GLOBAL"),
+            geo="geo",
             uirevision='static',
+            hovertemplate="<br>".join([
+                "<b>%{location}</b>",
+                "Subregión: %{customdata}",
+                "Puntaje global: %{z}",
+            ]),
+            customdata=df_antioquia['SUBREGION'],
             marker=dict(
                 line=dict(
                     color=['orange' if municipio == selected_municipio else '#444' for municipio in df_antioquia['MPIO_CNMBR']],
                     width=[4 if municipio == selected_municipio else 1 for municipio in df_antioquia['MPIO_CNMBR']]
                 )
-            )
+            ),
+            name='' # Para que no aparezca el nombre de la serie en la leyenda
         )
     )
 
@@ -153,14 +206,110 @@ def update_choropleth(selected_municipio):
 
     return fig
 
-# Actualizar el texto con el municipio seleccionado
+
+# Actualizar la tarjeta con información del municipio cuando se seleccione un municipio
 @dash.callback(
-    Output('municipio-seleccionado', 'children'),
+    [Output('flag-img', 'src'),
+    Output('line-chart-ANT', 'figure')],
     [Input('dropdown-municipios', 'value')]
 )
-def update_text(selected_municipio):
-    # Retorna html.H3 con el nombre del municipio seleccionado
-    bandera_municipio = "https://upload.wikimedia.org/wikipedia/commons/1/13/Flag_of_Zaragoza_%28Antioquia%29.svg" #TODO: Conectar con la base de datos
+def update_flag_img(selected_municipio):
 
-    # Retorna html.H4 con el nombre del municipio seleccionado y su bandera
-    return html.H4([html.Img(src=bandera_municipio, style={'height': '25px', 'width': 'auto'}), '\t Tres tristes tigres de ', selected_municipio])
+    # Selecciona la bandera del municipio seleccionado
+    bandera = df_antioquia[df_antioquia['MPIO_CNMBR'] == selected_municipio]['BANDERA'].values[0]
+
+    # ------------------- Crear el diagrama de linea con puntajes por año -------------------
+    # Voy a tener una variable para seleccionar un municipio.
+    municipio = selected_municipio
+
+    # Voy a tener una variable para seleccionar una variable. Ej. Puntaje matemáticas
+    variable = 'PUNT_GLOBAL'
+
+    # Crear el objeto gráfico de línea
+    fig = go.Figure()
+
+    # Obtener datos del municipio seleccionado
+    data_municipio = df_antioquia_promedios[df_antioquia_promedios['COLE_MCPIO_UBICACION'] == municipio]
+
+    # Construir el gráfico de línea con marcadores
+    fig.add_scatter(x=data_municipio['AÑO'], y=data_municipio[variable], mode='lines+markers', name=municipio, line=dict(color='blue', width=2), marker=dict(color='blue', size=8, symbol='circle'))
+
+    # Comparar con el promedio de Colombia
+    fig.add_scatter(x=df_colombia['AÑO'], y=df_colombia[variable], mode='lines+markers', name='COLOMBIA', line=dict(color='grey', width=2), marker=dict(color='grey', size=8, symbol='square'))
+
+    # Añadir nombres de las series como anotaciones a la izquierda del comienzo de cada línea
+    annotations = []
+
+    for i in range(len(fig.data)):
+        series_name = fig.data[i].name
+        start_value = fig.data[i].y[0]
+
+        # Agregar anotaciones de nombres de series
+        annotations.append(
+            dict(
+                x=data_municipio['AÑO'].min(),
+                y=start_value,
+                text=series_name,
+                showarrow=False,
+                xanchor='right',
+                font=dict(family='Arial', size=12, color=fig.data[i].line.color),
+                xshift=-10
+            )
+        )
+
+        # Agregar anotaciones de puntajes directamente
+        for j, y_value in enumerate(fig.data[i].y):
+            annotations.append(
+                dict(
+                    x=fig.data[i].x[j],
+                    y=y_value + 3,
+                    text=f'{y_value:.0f}',
+                    showarrow=False,
+                    arrowhead=0,
+                    ax=0,
+                    ay=-60,
+                    font=dict(family='Arial', size=10, color='black')
+                )
+            )
+
+    # Agregar anotaciones de fuente
+    annotations.extend([
+        dict(
+            xref='paper', yref='paper', x=0.5, y=-0.27,
+            xanchor='center', yanchor='top',
+            text='Fuente: ICFES (2023). DataIcfes. Saber 11. <a href="https://www.icfes.gov.co/web/guest/data-icfes" target="_blank">[Enlace]</a>',
+            font=dict(family='Arial', size=12, color='rgb(150,150,150)'),
+            showarrow=False
+        )
+    ])
+
+    # Configurar diseño y diseño de anotaciones
+    fig.update_layout(
+        # title='Promedio de ' + variable + ' en ' + municipio,
+        xaxis_title='Año',
+        xaxis=dict(
+            showline=True,
+            showgrid=False,
+            showticklabels=True,
+            linecolor='rgb(204, 204, 204)',
+            linewidth=2,
+            ticks='outside',
+        ),
+        yaxis=dict(
+            showgrid=False,
+            zeroline=False,
+            showline=False,
+            showticklabels=False,
+        ),
+        autosize=True,
+        plot_bgcolor='white',
+        showlegend=False,
+        annotations=annotations  # Añadir las anotaciones al diseño
+    )
+    fig.update_layout(hovermode="x unified",
+                      margin=dict(t=10, l=30, r=30),
+                      height=300,)
+
+    return bandera, fig
+
+        

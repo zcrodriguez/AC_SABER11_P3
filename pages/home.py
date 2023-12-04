@@ -106,19 +106,11 @@ layout = html.Div([
             # Menú desplegable 1: Información del colegio
             dbc.AccordionItem(
                 [
-                    # Fila 0
-                    dbc.Row([
-
-                        # COLE_NATURALEZA: Naturaleza del Establecimiento
-                        create_dd('dd_cole_naturaleza', 'Naturaleza', dd_params['cole_naturaleza'], 'Naturaleza', 6),
-
-                        # COLE_CARACTER: Carácter del Establecimiento
-                        create_dd('dd_cole_caracter', 'Carácter', dd_params['cole_caracter'], 'Carácter', 6),
-
-                    ],style={'margin-bottom': '5px'}),
-
                     # Fila 1
                     dbc.Row([
+
+                        # COLE_SUBREGION: Subregión del Establecimiento
+                        create_dd('dd_cole_subregion', 'Subregión', dd_params['cole_subregion'], 'Subregión', 12),
 
                         # COLE_AREA_UBICACION: Área de ubicación de la Sede
                         create_dd('dd_cole_area_ubicacion', 'Área de ubicación de la Sede', dd_params['cole_area_ubicacion'], 'Área de ubic. de la Sede', 12),
@@ -126,18 +118,6 @@ layout = html.Div([
                     ],style={'margin-bottom': '5px'}),
 
                     # Fila 2
-                    dbc.Row([
-
-                        # COLE_GENERO: Género del Establecimiento
-                        create_dd('dd_cole_genero', 'Género', dd_params['cole_genero'], 'Género', 6),
-
-
-                        # COLE_CALENDARIO: Calendario del Establecimiento
-                        create_dd('dd_cole_calendario', 'Calendario', dd_params['cole_calendario'], 'Calendario', 6),
-
-                    ],style={'margin-bottom': '5px'}),
-
-                    # Fila 3
                     dbc.Row([
 
                         # COLE_JORNADA: Jornada del Establecimiento
@@ -152,38 +132,35 @@ layout = html.Div([
                 title='Información del colegio'
             ),
 
+            # Menú desplegable 2: Información personal del estudiante
+            dbc.AccordionItem([
 
-            # Menú desplegable 2: Información personal y socioeconómica
+                # Fila 1
+                    dbc.Row([
+
+                        # ESTU_GENERO: Género del estudiante
+                        create_dd('dd_estu_genero', 'Género del estudiante', dd_params['estu_genero'], 'Género', 6),
+
+                        # ESTU_EDAD: Edad del estudiante
+                        create_dd('dd_estu_edad', 'Edad del estudiante', dd_params['estu_edad'], 'Edad', 6),
+
+                    ],style={'margin-bottom': '5px'}),
+
+            ], title='Información personal del estudiante'),
+
+
+            # Menú desplegable 3: Información socioeconómica del estudiante
             dbc.AccordionItem([
 
                     # Fila 1
                     dbc.Row([
 
-                        # ESTU_GENERO: Género del estudiante
-                        create_dd('dd_estu_genero', 'Género del estudiante', dd_params['estu_genero'], 'Género', 12),
-
-                    ],style={'margin-bottom': '5px'}),
-
-                    html.Hr(),
-
-                    # Fila 2
-                    dbc.Row([
-
-                        # FAMI_EDUCACIONMADRE: Nivel educativo de la madre
-                        create_dd('dd_fami_educacionmadre', 'Nivel educativo de la madre', dd_params['fami_educacionmadre'], 'Nivel educativo de la madre', 12),
+                        # FAMI_EDUCACION_MoP: Máxima educación alcanzada por la madre o el padre
+                        create_dd('dd_fami_educacion_mop', 'Educación de la madre o el padre', dd_params['fami_educacion_mop'], 'Educación de la madre o el padre', 12),
                         
                     ],style={'margin-bottom': '5px'}),
 
-                    # Fila 3
-                    dbc.Row([
-
-                        # FAMI_EDUCACIONPADRE: Nivel educativo del padre
-                        create_dd('dd_fami_educacionpadre', 'Nivel educativo del padre', dd_params['fami_educacionpadre'], 'Nivel educativo del padre', 12),
-
-                    ],style={'margin-bottom': '5px'}),
-
-
-                    # Fila 4
+                    # Fila 2
                     dbc.Row([
 
                         # FAMI_ESTRATOVIVIENDA: Estrato de la vivienda
@@ -195,33 +172,30 @@ layout = html.Div([
                         # FAMI_CUARTOSHOGAR: Número de cuartos en el hogar
                         create_dd('dd_fami_cuartoshogar', 'Cuartos en hogar', dd_params['fami_cuartoshogar'], 'N° cuartos', 4),
 
-                    ],style={'margin-bottom': '5px'}),
+                    ],style={'margin-bottom': '15px'}),
 
-
-                    # Filas 5
+                    # Fila 3
                     dbc.Row([
 
-                        # FAMI_TIENECOMPUTADOR: Indica si el hogar tiene computador
-                        create_dd('dd_fami_tienecomputador', '¿Tiene computador?', dd_params['fami_tienecomputador'], 'Tiene computador', 6),
-
-                        # FAMI_TIENEINTERNET: Indica si el hogar tiene internet
-                        create_dd('dd_fami_tieneinternet', '¿Tiene internet?', dd_params['fami_tieneinternet'], 'Tiene internet', 6),
-
-                    ],style={'margin-bottom': '5px'}),
-
-                    # Filas 6
-                    dbc.Row([
-
-                        # FAMI_TIENEAUTOMOVIL: Indica si el hogar tiene automóvil
-                        create_dd('dd_fami_tieneautomovil', '¿Tiene automóvil?', dd_params['fami_tieneautomovil'], 'Tiene automóvil', 6),
-
-                        # FAMI_TIENELAVADORA: Indica si el hogar tiene lavadora
-                        create_dd('dd_fami_tienelavadora', '¿Tiene lavadora?', dd_params['fami_tienelavadora'], 'Tiene lavadora', 6),
+                        # FAMI_RECURSOS: Recursos del hogar
+                        dbc.Label("Recursos del hogar", html_for="fami_recursos", size="sm"),
+                        dbc.Checklist(
+                            options=[
+                                {"label": "¿Tiene internet?", "value": 4}, 
+                                {"label": "¿Tiene computador?", "value": 3},
+                                {"label": "¿Tiene lavadora?", "value": 2},
+                                {"label": "¿Tiene automóvil?", "value": 1},
+                            ],
+                            value=[],
+                            id="fami_recursos",
+                            inline=False,
+                            switch=True,
+                        ),
 
                     ],style={'margin-bottom': '5px'}),
 
 
-                ], title='Información personal y socioeconómica'
+                ], title='Información socioeconómica del estudiante',
             ),
 
             ],
@@ -288,7 +262,7 @@ layout = html.Div([
             ),
         ], className="radio-group"),
 
-        # Interpretación del nivel de desempeño
+        # Markdown con la interpretación del desempeño
         dcc.Markdown(id='interpretacion-desempenho', dangerously_allow_html=True, style={'margin-top': '10px'}),
 
         # TODO: Eliminar estos componentes de prueba
@@ -316,12 +290,14 @@ layout = html.Div([
         Output('dd-output-container', 'children'), # TODO: Eliminar esta salida cuando se conecte con el modelo
      ],  
     [Input(f'dd_{param}', 'value') for param in dd_params.keys()],
+    [Input('fami_recursos', 'value')],
     [Input('dd_area', 'value')]
 )
 def display_selected_values(*values):
 
-    # Separar los valores de los dropdowns de los valores del área del conocimiento
-    dropdown_values = values[:-1]
+    # Separar los valores de los dropdowns de los valores de los recursos y el área de conocimiento
+    dropdown_values = values[:-2]
+    recursos = values[-2]
     selected_area = values[-1]
 
     # ---------------------------------------------------------------------------------------------------------------------------------------
@@ -336,6 +312,10 @@ def display_selected_values(*values):
         if value is not None:
             correct_param_name = param_name_mapping[0].get(f'dd_{param}', f'Unknown parameter: {param}')
             evidence[correct_param_name] = value  # Agregar el parámetro al diccionario
+
+    # Evidencias de los recursos
+    if recursos is not None:
+        evidence['FAMI_RECURSOS'] = sum(recursos)
 
     # # Crear un objeto de inferencia por cada una de las áreas de desempeño y condicionarlo de acuerdo con selected_area
     # inferencia = infer.query(["Target"], evidence=evidence) # Target: éxito académico
@@ -410,7 +390,8 @@ def update_interpretacion_desempenho(nivel_desempenho, area_conocimiento):
 #                                                       LIMPIAR FORMULARIO
 # ----------------------------------------------------------------------------------------------------------------------
 @dash.callback(
-    [Output(f'dd_{param}', 'value') for param in dd_params.keys()],
+    [Output(f'dd_{param}', 'value') for param in dd_params.keys()] +
+    [Output("fami_recursos", "value")],
     [Input('clear-button', 'n_clicks')],
     prevent_initial_call=True
 )
@@ -419,11 +400,14 @@ def clear_form(n_clicks):
         
         # Clear the dropdowns
         output_values = {f'dd_{param}': None for param in dd_params.keys()}
-        return [output_values[param] for param in output_values]
+
+        # Clear the fami_recursos switches
+        fami_recursos_value = []
+
+        return [output_values[param] for param in output_values] + [fami_recursos_value]
     
     else:
         raise PreventUpdate
-
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -431,14 +415,14 @@ def clear_form(n_clicks):
 # ----------------------------------------------------------------------------------------------------------------------
 @dash.callback(
     [Output('progress-bar', 'value'),Output('progress-bar', 'label')],
-    [Input(f'dd_{param}', 'value') for param in dd_params.keys()]
+    [Input(f'dd_{param}', 'value') for param in dd_params.keys()],
 )
 def update_progress_bar(*values):
     # Calcula el progreso en función del número de valores ingresados
-    total_params = len(dd_params)  # Total de parámetros (dropdowns y créditos)
+    total_params = len(dd_params)+1  # Total de parámetros (dropdowns y recursos)
     
     # Cuenta el número de parámetros diligenciados en dropdowns
-    filled_params = sum([value is not None for value in values])
+    filled_params = sum([value is not None for value in values])+1 # Suma 1 por los recursos
        
     # Calcula el progreso con dos decimales
     progress = round(filled_params / total_params * 100)

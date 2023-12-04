@@ -7,6 +7,7 @@ import json
 import pickle
 from pgmpy.inference import VariableElimination
 from dash.exceptions import PreventUpdate
+from utils.utils import create_dd, create_predicted_performance_chart, interpretar_desempenho
 
 templates = ["cerulean"]
 load_figure_template(templates)
@@ -52,230 +53,10 @@ param_name_mapping = all_params.get('param_name_mapping', {})
 
 
 # ======================================================================================================================
-#                                               FUNCIONES AUXILIARES
-# ======================================================================================================================
-
-# Función para crear un menú desplegable de Bootstrap
-def create_dd(id, label, options, placeholder, width=12, optionHeight=35):
-    """
-    Crea un menú desplegable de Bootstrap.
-
-    Args:
-        id (str): Identificador del menú desplegable.
-        label (str): Etiqueta del menú desplegable.
-        options (list): Opciones del menú desplegable. Cada opción es un diccionario con las claves 'label' y 'value'.
-        placeholder (str): Placeholder del menú desplegable.
-        width (int, optional): Ancho del menú desplegable. Defaults to 12.
-        optionHeight (int, optional): Altura de las opciones del menú desplegable. Defaults to 35.
-    
-    Returns:
-        dbc.Col: Menú desplegable de Bootstrap.
-    """
-    return dbc.Col([
-        dbc.Label(label, html_for=id, size="sm"),
-        dcc.Dropdown(id=id, 
-            options=options,
-            placeholder=placeholder,
-            optionHeight=optionHeight,
-            persistence=True  # Habilitar la persistencia para mantener el estado
-        ),
-    ], width=width)
-
-# Función para crear un gráfico de bloques
-def create_predicted_performance_chart(selected_blocks, area_conocimiento):
-    """
-    Crea un gráfico que representa el nivel de desempeño de un estudiante en la prueba Saber para un área específica del conocimiento.
-
-    Args:
-        selected_blocks (int): Número de bloques seleccionados que indican el nivel de desempeño predicho.
-        area_conocimiento (str): Área del conocimiento para la cual se está realizando la predicción.
-
-    Returns:
-        dcc.Graph: Gráfico de rendimiento predicho con bloques y anotaciones visuales.
-    """
-
-    # Determina el total de bloques según el área de conocimiento (por ejemplo, 4 bloques para áreas distintas a inglés, 5 para inglés)
-    total_blocks = 5 if area_conocimiento == 'ingles' else 4
-
-    # Define colores según el nivel de desempeño predicho
-    colors = ['blue' if i < selected_blocks else 'lightgrey' for i in range(total_blocks)]
-
-    # Define etiquetas para cada bloque según el área de conocimiento
-    text_values = ["A-", "A1", "A2", "B1", "B+"] if area_conocimiento == 'ingles' else [str(i + 1) for i in range(total_blocks)]
-
-    fig = go.Figure()
-
-    for i in range(total_blocks):
-        height = i + 1
-        fig.add_hline(y=height, line_width=3, line_color="white")
-
-        bar = go.Bar(
-            y=[height],
-            x=[i + 1],
-            width=0.8,
-            marker_color=colors[i],
-            showlegend=False,
-            hoverinfo='none'
-        )
-
-        text = go.Scatter(
-            x=[i + 1],
-            y=[height + 0.3],
-            text=[text_values[i]],
-            mode='text',
-            showlegend=False,
-            hoverinfo='none'
-        )
-
-        fig.add_traces([bar, text])
-
-        # Agrega una flecha indicadora para el nivel de desempeño seleccionado
-        if i + 1 == selected_blocks:
-            fig.add_annotation(
-                x=i + 1,
-                y=height + 0.9,
-                text="▼",
-                showarrow=False,
-                font=dict(size=16)
-            )
-
-    # Configura el diseño del gráfico
-    fig.update_layout(
-        xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-        yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-        showlegend=False,
-        margin=dict(t=0, b=0, l=0, r=0),
-        plot_bgcolor='white',
-        paper_bgcolor='white'
-    )
-
-    fig.update_layout(height=200, width=400)
-
-    return fig
-
-
-# Función que retorna interpretación del desempeño por área del conocimiento y por nivel de desempeño
-def interpretar_desempenho(area_conocimiento, nivel_desempenho):
-
-    # Definir el texto de interpretación según el área del conocimiento
-    if area_conocimiento == 'matematicas':
-
-        # Definir el texto de interpretación según el nivel de desempeño
-        if nivel_desempenho == 1:
-            return "El estudiante que se ubica en este nivel probablemente puede leer información puntual (un dato, por ejemplo) relacionada con situaciones cotidianas y presentada en tablas o gráficas con escala explícita, cuadrícula o, por lo menos, líneas horizontales."
-        elif nivel_desempenho == 2:
-            return "- Compara datos de dos variables presensentadas en una misma gráfica sin necesidad de hacer operaciones aritméticas. \n- Identifica valores o puntos representativos en diferentes tipos de registro a partir del significado que tienen en la situación. \n- Interpreta información presentada en tablas o gráficas con escala explícita, cuadrícula o, por lo menos, líneas horizontales."
-        elif nivel_desempenho == 3:
-            return "El estudiante se encuentra en el nivel de desempeño medio. Se recomienda que el estudiante refuerce sus conocimientos en el área de matemáticas."
-        elif nivel_desempenho == 4:
-            return "El estudiante se encuentra en el nivel de desempeño alto. Se recomienda que el estudiante refuerce sus conocimientos en el área de matemáticas."
-        elif nivel_desempenho == 5:
-            return "El estudiante se encuentra en el nivel de desempeño más alto. ¡Felicitaciones!"
-        else:
-            return "No se ha seleccionado un nivel de desempeño válido."
-    
-
-    elif area_conocimiento == 'ciencias_naturales':
-
-        # Definir el texto de interpretación según el nivel de desempeño
-        if nivel_desempenho == 1:
-            return "El estudiante se encuentra en el nivel de desempeño más bajo. Se recomienda que el estudiante refuerce sus conocimientos en el área de ciencias naturales."
-        
-        elif nivel_desempenho == 2:
-            return "El estudiante se encuentra en el nivel de desempeño bajo. Se recomienda que el estudiante refuerce sus conocimientos en el área de ciencias naturales."
-        
-        elif nivel_desempenho == 3:
-            return "El estudiante se encuentra en el nivel de desempeño medio. Se recomienda que el estudiante refuerce sus conocimientos en el área de ciencias naturales."
-        
-        elif nivel_desempenho == 4:
-            return "El estudiante se encuentra en el nivel de desempeño alto. Se recomienda que el estudiante refuerce sus conocimientos en el área de ciencias naturales."
-        
-        elif nivel_desempenho == 5:
-            return "El estudiante se encuentra en el nivel de desempeño más alto. ¡Felicitaciones!"
-        
-        else:
-            return "No se ha seleccionado un nivel de desempeño válido."
-
-
-    elif area_conocimiento == 'ciencias_sociales':
-
-        # Definir el texto de interpretación según el nivel de desempeño
-        if nivel_desempenho == 1:
-            return "El estudiante se encuentra en el nivel de desempeño más bajo. Se recomienda que el estudiante refuerce sus conocimientos en el área de ciencias sociales."
-        
-        elif nivel_desempenho == 2:
-            return "El estudiante se encuentra en el nivel de desempeño bajo. Se recomienda que el estudiante refuerce sus conocimientos en el área de ciencias sociales."
-        
-        elif nivel_desempenho == 3:
-            return "El estudiante se encuentra en el nivel de desempeño medio. Se recomienda que el estudiante refuerce sus conocimientos en el área de ciencias sociales."
-        
-        elif nivel_desempenho == 4:
-            return "El estudiante se encuentra en el nivel de desempeño alto. Se recomienda que el estudiante refuerce sus conocimientos en el área de ciencias sociales."
-        
-        elif nivel_desempenho == 5:
-            return "El estudiante se encuentra en el nivel de desempeño más alto. ¡Felicitaciones!"
-        
-        else:
-            return "No se ha seleccionado un nivel de desempeño válido."
-
-
-    elif area_conocimiento == 'lectura_critica':
-
-        # Definir el texto de interpretación según el nivel de desempeño
-        if nivel_desempenho == 1:
-            return "El estudiante se encuentra en el nivel de desempeño más bajo. Se recomienda que el estudiante refuerce sus conocimientos en el área de lectura crítica."
-        
-        elif nivel_desempenho == 2:
-            return "El estudiante se encuentra en el nivel de desempeño bajo. Se recomienda que el estudiante refuerce sus conocimientos en el área de lectura crítica."
-        
-        elif nivel_desempenho == 3:
-            return "El estudiante se encuentra en el nivel de desempeño medio. Se recomienda que el estudiante refuerce sus conocimientos en el área de lectura crítica."
-        
-        elif nivel_desempenho == 4:
-            return "El estudiante se encuentra en el nivel de desempeño alto. Se recomienda que el estudiante refuerce sus conocimientos en el área de lectura crítica."
-        
-        elif nivel_desempenho == 5:
-            return "El estudiante se encuentra en el nivel de desempeño más alto. ¡Felicitaciones!"
-        
-        else:
-            return "No se ha seleccionado un nivel de desempeño válido."
-
-
-    elif area_conocimiento == 'ingles':
-
-        # Definir el texto de interpretación según el nivel de desempeño
-        if nivel_desempenho == 1:
-            return "- El estudiante se encuentra en el nivel de desempeño más bajo. Se recomienda que el estudiante refuerce sus conocimientos en el área de inglés. \n- El estudiante se encuentra en el nivel de desempeño más bajo. Se recomienda que el estudiante refuerce sus conocimientos en el área de inglés."
-        
-        elif nivel_desempenho == 2:
-            return "El estudiante se encuentra en el nivel de desempeño bajo. Se recomienda que el estudiante refuerce sus conocimientos en el área de inglés."
-        
-        elif nivel_desempenho == 3:
-            return "El estudiante se encuentra en el nivel de desempeño medio. Se recomienda que el estudiante refuerce sus conocimientos en el área de inglés."
-        
-        elif nivel_desempenho == 4:
-            return "El estudiante se encuentra en el nivel de desempeño alto. Se recomienda que el estudiante refuerce sus conocimientos en el área de inglés."
-        
-        elif nivel_desempenho == 5:
-            return "El estudiante se encuentra en el nivel de desempeño más alto. ¡Felicitaciones!"
-        
-        else:
-            return "No se ha seleccionado un nivel de desempeño válido."
-        
-    else:
-        return ""
-        
-
-
-
-# ======================================================================================================================
 #                                               CONTENIDO DE LA PÁGINA
 # ======================================================================================================================
 
 layout = html.Div([
-
-    # Elemento para almacenar el nivel de desempeño predicho
-    dcc.Store(id='desempenho-store', storage_type='memory'),
 
     # ------------------------------------------------------------------------------------------------------------------
     #                                           PANEL DE LA IZQUIERDA: FORMULARIO
@@ -470,11 +251,13 @@ layout = html.Div([
                     ],
                     placeholder="Área del conocimiento",
                     optionHeight=35,
-                    persistence=True  # Habilitar la persistencia para mantener el estado
+                    persistence=True,
+                    clearable=False,
                 ),
             ], width=12, style={'margin-bottom': '10px'}),
         ], justify="center", style={'margin-bottom': '10px'}),
     
+        # Gráfico de predicción del desempeño
         html.Div(
             dbc.Spinner(
                 dcc.Graph(
@@ -487,18 +270,32 @@ layout = html.Div([
             style={'height': '200px', 'overflow': 'auto', 'display': 'flex', 'justify-content': 'center', 'align-items': 'center'}
         ),
 
+        html.Hr(),
+
+        # Título de la interpretación del desempeño
+        html.H4([html.I(className="fa fa-magnifying-glass-chart"),'\t Interpretación del nivel de desempeño']),
+
+        # Radio buttons para seleccionar el nivel de desempeño
+        html.Div([
+            dbc.RadioItems(
+                id='radios',
+                className="btn-group",  # Agrega la clase btn-group-toggle
+                inputClassName="btn-check",
+                labelClassName="btn btn-outline-primary",
+                labelCheckedClassName="active",
+                options=[],  # Se actualizará dinámicamente
+                value=1,
+            ),
+        ], className="radio-group"),
+
+        # Interpretación del nivel de desempeño
+        dcc.Markdown(id='interpretacion-desempenho', dangerously_allow_html=True, style={'margin-top': '10px'}),
+
+        # TODO: Eliminar estos componentes de prueba
         # Mostrar valores de dropdowns seleccionados
         html.Div(id='dd-output-container', style={'margin-top': '10px'}),
-        
-        # TODO: Eliminar estos componentes de prueba
-        html.Hr(),
         html.Div(id='otro-componente'),
 
-        # Interpretación del desempeño
-        html.H4([html.I(className="fa fa-magnifying-glass-chart"),'\t Interpretación']),
-
-        # Markdown con la interpretación del desempeño
-        dcc.Markdown(id='interpretacion-desempenho', style={'margin-top': '10px'}),
 
     ], className='col-md-7', style={'padding-left': '40px', 'padding-right': '40px', 'padding-top': '10px'})
     
@@ -517,8 +314,6 @@ layout = html.Div([
     [
         Output('predicted-performance-chart', 'figure'),
         Output('dd-output-container', 'children'), # TODO: Eliminar esta salida cuando se conecte con el modelo
-        Output('interpretacion-desempenho', 'children'),
-        Output('desempenho-store', 'data')
      ],  
     [Input(f'dd_{param}', 'value') for param in dd_params.keys()],
     [Input('dd_area', 'value')]
@@ -529,9 +324,10 @@ def display_selected_values(*values):
     dropdown_values = values[:-1]
     selected_area = values[-1]
 
+    # ---------------------------------------------------------------------------------------------------------------------------------------
     # NOTA 1 PARA ZAI: ESTA PARTE LA VAMOS A CONSERVAR ASÍ PORQUE ES LA QUE SE ENCARGA DE HACER LA PREDICCIÓN -------------------------------
-    # TODO: Conectar con el modelo y hacer la predicción
-
+    # TODO: Conectar con el modelo y hacer la predicción ------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------------------------------------
     # Crear un diccionario para almacenar las evidencias
     evidence = {}
 
@@ -553,25 +349,60 @@ def display_selected_values(*values):
         desempenho = 0
     elif probability <= 25:
         desempenho = 1
-    elif probability <= 75:
+    elif probability <= 50:
         desempenho = 2
-    else:
+    elif probability <= 75:
         desempenho = 3
+    else:
+        desempenho = 4
 
+    # ------------------------------------------------------------------------------------------------------------------------------------------
     # FIN DE LA NOTA 1 PARA ZAI ----------------------------------------------------------------------------------------------------------------
-    
-    # Crear el gráfico de gauge
-    # Ejemplo de uso: cambia el número y el área del conocimiento para ver cómo se actualiza el gráfico
+    # ------------------------------------------------------------------------------------------------------------------------------------------
+
+    # Crear el gráfico de predicción del desempeño
     fig = create_predicted_performance_chart(desempenho, selected_area)
 
-    # Retornar html.pre con evidence
+    
     # TODO: Eliminar esta salida cuando se conecte con el modelo
-    salida = html.Pre(json.dumps(evidence, indent=4, ensure_ascii=False)) 
+    salida = html.Pre(json.dumps(evidence, indent=4, ensure_ascii=False))
+    return [fig, salida]
 
-    # Retornar interpretación del desempeño
-    interpretacion = interpretar_desempenho(selected_area, desempenho)
+    # return [fig]
 
-    return [fig, salida, interpretacion, desempenho]
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+#                                                BOTONES DE NIVELES DE DESEMPEÑO
+# ----------------------------------------------------------------------------------------------------------------------
+@dash.callback(
+    Output('radios', 'options'),
+    [Input('dd_area', 'value')]
+)
+def generate_radio_options(selected_area):
+    if selected_area == 'ingles':
+        text_values = ["A-", "A1", "A2", "B1", "B+"]
+    elif selected_area != None:
+        total_blocks = 4  # Define el total de bloques según tus necesidades
+        text_values = [str(i + 1) for i in range(total_blocks)]
+    else:
+        text_values = []
+
+    options = [{'label': label, 'value': i + 1} for i, label in enumerate(text_values)]
+
+    return options
+
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+#                                                INTERPRETACIÓN DEL DESEMPEÑO
+# ----------------------------------------------------------------------------------------------------------------------
+@dash.callback(
+    Output('interpretacion-desempenho', 'children'),
+    [Input('radios', 'value'), Input('dd_area', 'value')]
+)
+def update_interpretacion_desempenho(nivel_desempenho, area_conocimiento):
+    return interpretar_desempenho(area_conocimiento, nivel_desempenho)
 
 
 
@@ -588,10 +419,11 @@ def clear_form(n_clicks):
         
         # Clear the dropdowns
         output_values = {f'dd_{param}': None for param in dd_params.keys()}
-        
         return [output_values[param] for param in output_values]
+    
     else:
         raise PreventUpdate
+
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -610,16 +442,5 @@ def update_progress_bar(*values):
        
     # Calcula el progreso con dos decimales
     progress = round(filled_params / total_params * 100)
+
     return progress, f"{progress} %" if progress >= 5 else ""
-
-
-@dash.callback(
-    Output('otro-componente', 'children'),
-    [Input('desempenho-store', 'modified_timestamp')],
-    [State('desempenho-store', 'data')]
-)
-def otro_callback(timestamp, desempenho):
-    if timestamp is None:
-        raise dash.exceptions.PreventUpdate
-
-    return f"El desempeño es: {desempenho}"

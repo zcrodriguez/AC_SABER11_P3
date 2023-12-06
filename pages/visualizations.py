@@ -1,11 +1,14 @@
 import dash
-from dash import html, dcc, Input, Output
+from dash import html, dcc, Input, Output, State
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
 import json
+from geojson_rewind import rewind
+from utils.utils import create_offcanvas_content
+
 
 templates = ["cerulean"]
 load_figure_template(templates)
@@ -23,7 +26,6 @@ with open('assets/MunicipiosVeredas19MB.json', encoding='utf-8') as geojson:
     geo_json = json.load(geojson)
 
 # Usamos geojson_rewind para corregir la orientación de los polígonos del GeoJSON. Esto es necesario para que el choropleth funcione correctamente
-from geojson_rewind import rewind
 geo_json = rewind(geo_json, rfc7946=False)
 
 
@@ -38,7 +40,6 @@ df_antioquia = pd.read_csv('assets/df_antioquia_promedios.csv', dtype=str)
 #                                    BASES DE DATOS PARA LINE CHART DE MUNICIPIO
 # ======================================================================================================================
 df_antioquia_promedios = pd.read_csv('assets/df_antioquia_linechart.csv')
-
 df_colombia = pd.read_csv('assets/df_colombia_linechart.csv')
 
 
@@ -52,8 +53,8 @@ fig = go.Figure()
 fig.add_trace(
     go.Choropleth(
         geojson=geo_json,
-        locations=df_antioquia['MPIO_CNMBR'],
-        z=df_antioquia['AVG_PUNT_GLOBAL'],
+        locations=df_antioquia_promedios['COLE_MCPIO_UBICACION'],
+        z=df_antioquia_promedios['PUNT_GLOBAL'][df_antioquia_promedios['AÑO'] == 2022],
         featureidkey="properties.MPIO_CNMBR",
         colorscale="Blues",
         # colorbar=dict(title="AVG_PUNT_GLOBAL"),
@@ -83,11 +84,26 @@ layout = html.Div([
     dbc.Row([
         
         # ---------------------------------------------------------------------------------------------------------------
+        #                                                   OFFCANVAS
+        # ---------------------------------------------------------------------------------------------------------------
+        dbc.Offcanvas(
+            id="offcanvas-subregion",
+            is_open=False,
+            placement='end',
+            backdrop=False,
+            scrollable=True,
+        ),
+
+
+        # ---------------------------------------------------------------------------------------------------------------
         #                                  IZQ: MAPA COROPLÉTICO DE ANTIOQUIA
         # ---------------------------------------------------------------------------------------------------------------
         dbc.Col([
-            dcc.Graph(id="choropleth-ANT", figure=fig),  
+            dcc.Graph(id="choropleth-ANT", figure=fig,style={'padding-bottom': '15px'}), 
+            dcc.Slider(id='year-slider', marks={str(year): str(year) for year in range(2015, 2023)}, value=2022, step=1, persistence=True),
         ], width=5),
+
+
 
         # ---------------------------------------------------------------------------------------------------------------
         #                                  DER: TARJETA CON INFORMACIÓN DEL MUNICIPIO
@@ -130,7 +146,12 @@ layout = html.Div([
                 # Cuerpo de la tarjeta
                 dbc.CardBody(
                     [
-                        html.P("En esta área colocar: Subregión y grado de violencia"),
+                        # Escribir texto en el mismo renglón que el botón subregion-button
+                        html.Div([
+                            html.H6([html.I(className="fa fa-location-dot"),'\t Subregión:'], style={'margin-right': '10px'}),  # Añadí un margen derecho
+                            dbc.Button(id='subregion-button', color='primary', outline=True, size='sm'),
+                        ], style={'display': 'flex', 'align-items': 'center', 'margin-bottom': '10px'}),
+
                         html.Hr(),
 
                         # Crear diagrama de linea con puntajes por año (solo graph con id para modificarlo con callbacks)
@@ -164,9 +185,10 @@ layout = html.Div([
 # Actualizar el choropleth cuando se seleccione un municipio
 @dash.callback(
     Output('choropleth-ANT', 'figure'),
-    [Input('dropdown-municipios', 'value')]
+    [Input('dropdown-municipios', 'value'),
+     Input('year-slider', 'value')]
 )
-def update_choropleth(selected_municipio):
+def update_choropleth(selected_municipio, selected_year):
     # Crear el objeto gráfico de mapa
     fig = go.Figure()
 
@@ -174,11 +196,12 @@ def update_choropleth(selected_municipio):
     fig.add_trace(
         go.Choropleth(
             geojson=geo_json,
-            locations=df_antioquia['MPIO_CNMBR'],
-            z=df_antioquia['AVG_PUNT_GLOBAL'],
-            featureidkey="properties.MPIO_CNMBR",
-            colorscale="Blues",
-            # colorbar=dict(title="AVG_PUNT_GLOBAL"),
+        locations=df_antioquia_promedios['COLE_MCPIO_UBICACION'],
+        z=df_antioquia_promedios['PUNT_GLOBAL'][df_antioquia_promedios['AÑO'] == selected_year],
+        zmin=180,
+        zmax=300,
+        featureidkey="properties.MPIO_CNMBR",
+        colorscale="Blues",
             geo="geo",
             uirevision='static',
             hovertemplate="<br>".join([
@@ -207,10 +230,13 @@ def update_choropleth(selected_municipio):
     return fig
 
 
-# Actualizar la tarjeta con información del municipio cuando se seleccione un municipio
+# ---------------------------------------------------------------------------------------------------------------
+#                                  CALLBACKS PARA LA TARJETA CON INFORMACIÓN DEL MUNICIPIO
+# ---------------------------------------------------------------------------------------------------------------
 @dash.callback(
     [Output('flag-img', 'src'),
-    Output('line-chart-ANT', 'figure')],
+    Output('line-chart-ANT', 'figure'),
+    Output('subregion-button', 'children')],
     [Input('dropdown-municipios', 'value')]
 )
 def update_flag_img(selected_municipio):
@@ -309,7 +335,38 @@ def update_flag_img(selected_municipio):
     fig.update_layout(hovermode="x unified",
                       margin=dict(t=10, l=30, r=30),
                       height=300,)
+    
+    # Selecciona la subregión del municipio seleccionado
+    subregion = df_antioquia[df_antioquia['MPIO_CNMBR'] == selected_municipio]['SUBREGION'].values[0]
 
-    return bandera, fig
+    return bandera, fig, subregion
+
+
+# ---------------------------------------------------------------------------------------------------------------
+#                                 CALLBACKS PARA EL OFFCANVAS
+# ---------------------------------------------------------------------------------------------------------------
+# Cambiar el estado del offcanvas cuando se hace clic en el botón
+@dash.callback(
+    Output("offcanvas-subregion", "is_open"),
+    [Input("subregion-button", "n_clicks")],
+    [State("offcanvas-subregion", "is_open")]
+)
+def toggle_offcanvas(n_clicks, is_open):
+    return not is_open if n_clicks else is_open
+
+# Actualizar el contenido del offcanvas cuando se selecciona un municipio
+@dash.callback(
+    Output("offcanvas-subregion", "children"),
+    [Input("dropdown-municipios", "value")]
+)
+def update_offcanvas(selected_municipio):
+
+    # Selecciona la subregión del municipio seleccionado
+    subregion = df_antioquia[df_antioquia['MPIO_CNMBR'] == selected_municipio]['SUBREGION'].values[0]
+
+    return create_offcanvas_content(subregion)
+
+
+
 
         

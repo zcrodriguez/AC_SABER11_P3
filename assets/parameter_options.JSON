@@ -1,5 +1,10 @@
 {
   "dropdown_params":{
+    "semaforo_viol": [
+      {"label":"Bajo", "value":1},
+      {"label":"Medio", "value":2},
+      {"label":"Alto", "value":3}
+    ],
     "cole_area_ubicacion": [
       {"label":"Urbano", "value":1},
       {"label":"Rural", "value":2}
@@ -35,10 +40,10 @@
     ],
     "estu_edad": [
       {"label":"12 a 15", "value":1},
-      {"label":"16 a 18", "value":3},
-      {"label":"19 a 25", "value":4},
-      {"label":"26 a 30", "value":5},
-      {"label":"31 a 35", "value":6}      
+      {"label":"16 a 18", "value":2},
+      {"label":"19 a 25", "value":3},
+      {"label":"26 a 30", "value":4},
+      {"label":"31 a 35", "value":5}
     ],
     "fami_educacion_mop":[
       {"label":"NS/NR", "value":0},
@@ -61,27 +66,11 @@
       {"label":"4", "value":4},
       {"label":"5", "value":5},
       {"label":"6", "value":6}
-    ],
-    "fami_personashogar": [
-      {"label":"NS/NR", "value":0},
-      {"label":"1 a 2", "value":1},
-      {"label":"3 a 4", "value":2},
-      {"label":"5 a 6", "value":3},
-      {"label":"7 a 8", "value":4},
-      {"label":"9 o más", "value":5}
-    ],
-    "fami_cuartoshogar": [
-      {"label":"NS/NR", "value":0},
-      {"label":"1", "value":1},
-      {"label":"4", "value":2},
-      {"label":"2", "value":3},
-      {"label":"3", "value":4},
-      {"label":"5", "value":5},
-      {"label":"6+", "value":6}
     ]
   },
   "param_name_mapping":[
     {
+      "dd_semaforo_viol":  "SEMAFORO_VIOL",
       "dd_cole_area_ubicacion":  "COLE_AREA_UBICACION",
       "dd_cole_bilingue":  "COLE_BILINGUE",
       "dd_cole_jornada":  "COLE_JORNADA",
@@ -89,9 +78,27 @@
       "dd_estu_edad":  "ESTU_EDAD",
       "dd_cole_subregion":  "COLE_SUBREGION",
       "dd_fami_educacion_mop":  "FAMI_EDUCACION_MoP",
-      "dd_fami_estratovivienda":  "FAMI_ESTRATOVIVIENDA",
-      "dd_fami_personashogar":  "FAMI_PERSONASHOGAR",
-      "dd_fami_cuartoshogar":  "FAMI_CUARTOSHOGAR"
+      "dd_fami_estratovivienda":  "FAMI_ESTRATOVIVIENDA"
+    }
+  ],
+  "area_to_model_mapping":[
+    {
+      "matematicas": "modelo_entrenado_MATH",
+      "ciencias_naturales": "modelo_entrenado_NATUR",
+      "ciencias_sociales": "modelo_entrenado_SOC",
+      "lectura_critica": "modelo_entrenado_LEC",
+      "ingles": "modelo_entrenado_ENG",
+      "global": "modelo_entrenado_Global"
+    }
+  ],
+  "target_variable":[
+    {
+      "matematicas": "PUNT_MATEMATICAS_ADJ",
+      "ciencias_naturales": "PUNT_C_NATURALES_ADJ",
+      "ciencias_sociales": "PUNT_SOCIALES_CIUDADANAS_ADJ",
+      "lectura_critica": "PUNT_LECTURA_CRITICA_ADJ",
+      "ingles": "PUNT_INGLES_ADJ",
+      "global": "PUNT_GLOBAL_ADJ"
     }
   ]
 }

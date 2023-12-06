@@ -18,7 +18,13 @@ gantt
     🛠️ Gráfico de predicción del desempeño: 2023-11-27, 1d
     🛠️ BD de puntajes y banderas: 2023-11-28, 1d
     🛠️ Line chart de puntajes históricos por municipio: 2023-11-30, 2d
-    🛠️ Interpretación de desempeños:2023-12-3,1d
+    🛠️ Interpretación de desempeños:2023-12-3, 12h
+    🛠️ Organización de Archivos y Mejoras de Interfaz: 2023-12-3 12:00, 12h
+    🛠️ Actualización de formulario con vars seleccionadas: 2023-12-4, 1d
+    🛠️ Creación de off-canvas de subregiones: 2023-12-5, 12h
+    🔗 Integración de modelos serializados: 2023-12-5 12:00, 12h
+    🛠️ Limpiar las páginas de elementos de prueba: 2023-12-6, 19h
+    🛠️ Creación de Dockerfile: 2023-12-6 19:00, 5h
 ```
 
 ## Requisitos
@@ -37,16 +43,16 @@ gantt
 
 ## Estructura del repositorio
 - `assets/`: Directorio que contiene los recursos utilizados en la interfaz.
-    - `croquis-ANT.png`: Opción 1 de logo para la aplicación. Croquis de Antioquia original.
     - `croquis-ANT2.png`: Opción 2 de logo para la aplicación. Croquis de Antioquia con borde blanco.
-    - `croquis-ANT3.png`: Opción 3 de logo para la aplicación. Croquis de Antioquia con bandera.
     - `custom.css`: Archivo que contiene el estilo personalizado de la aplicación.
     - `MunicipiosVeredas.csv`: Archivo CSV con la información de los municipios y veredas de Antioquia.
     - `MunicipiosVeredas19MB.json`: Archivo JSON con la información de los municipios y veredas de Antioquia.
     - `parameter_options.JSON`: Archivo JSON con las opciones de los menús desplegables.
-- `Pages/`: Carpeta que contiene los archivos de las páginas del dashboard.
+- `pages/`: Carpeta que contiene los archivos de las páginas del dashboard.
     - `home.py`: Archivo que contiene el cuerpo de la página de inicio (app v.1.).
-    - `visualizations.py`: Archivo que contiene el cuerpo de la página de visualizaciones.	
+    - `visualizations.py`: Archivo que contiene el cuerpo de la página de visualizaciones.
+- `utils/`: Carpeta que contiene los archivos de utilidades.
+    - `utils.py`: Archivo que contiene las funciones de utilidad.
 - `.gitignore`: Archivo que especifica los archivos que no se deben subir al repositorio.
 - `app.py`: Código principal de la aplicación.
 

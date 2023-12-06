@@ -33,22 +33,60 @@ except json.JSONDecodeError:
 # Extraer solo los parámetros de los dropdowns
 dd_params = all_params.get('dropdown_params', {})
 
-# Obtener el diccionario de correspondencias
+# Obtener el diccionario de correspondencias entre los nombres de los parámetros y los nombres de las variables del modelo
 param_name_mapping = all_params.get('param_name_mapping', {})
 
-# TODO: Habilitar la carga del modelo cuando esté listo
-# Cargar modelo entrenado desde el archivo
-# try:
-#     with open('assets/modelo_entrenado.pkl', 'rb') as f:
-#         loaded_model = pickle.load(f)
-# except FileNotFoundError:
-#     print("El archivo del modelo no se encontró.")
-# except pickle.UnpicklingError:
-#     print("Error al cargar el modelo.")
-#     loaded_model = None
 
-# # Crea un objeto de inferencia
-# infer = VariableElimination(loaded_model)
+
+# ======================================================================================================================
+#                                               CARGA DE MODELOS
+# ======================================================================================================================
+model_names = ['modelo_entrenado_ENG', 'modelo_entrenado_LEC', 'modelo_entrenado_MATH',
+               'modelo_entrenado_NATUR', 'modelo_entrenado_SOC', 'modelo_entrenado_Global']
+
+# Crear un diccionario para almacenar los modelos cargados
+loaded_models = {}
+
+# Cargar los modelos desde los archivos .pkl en la carpeta 'assets'
+for model_name in model_names:
+    try:
+        with open(f'assets/{model_name}.pkl', 'rb') as f:
+            loaded_models[model_name] = pickle.load(f)
+    except FileNotFoundError:
+        print(f"El archivo del modelo {model_name} no se encontró.")
+        loaded_models[model_name] = None
+    except pickle.UnpicklingError:
+        print(f"Error al cargar el modelo {model_name}.")
+        loaded_models[model_name] = None
+
+# Crear objetos de inferencia para cada modelo cargado
+inference_objects = {model_name: VariableElimination(loaded_model) if loaded_model else None
+                     for model_name, loaded_model in loaded_models.items()}
+
+# Mapeo de áreas a modelos de inferencia
+area_to_model_mapping = all_params.get('area_to_model_mapping', {})[0]
+
+# Diccionario que hace corresponder el nombre del área del conocimiento del dropdown con el nombre de las variables objetivo de los modelos
+target_variable = all_params.get('target_variable', {})[0]
+
+# Función para realizar la inferencia
+def realizar_inferencia(area_seleccionada):
+    """
+    Realiza la inferencia con el modelo de inferencia correspondiente al área seleccionada.
+
+    args:
+        area_seleccionada (str): Nombre del área seleccionada.
+
+    returns:
+        objeto_de_inferencia (VariableElimination): Objeto de inferencia para el área seleccionada.
+    """
+    modelo_entrenado_key = area_to_model_mapping.get(area_seleccionada)
+    
+    if modelo_entrenado_key:
+        objeto_de_inferencia = inference_objects.get(modelo_entrenado_key)
+        return objeto_de_inferencia
+    else:
+        return f"No se encontró un objeto de inferencia para el área {area_seleccionada}"
 
 
 
@@ -106,11 +144,21 @@ layout = html.Div([
             # Menú desplegable 1: Información del colegio
             dbc.AccordionItem(
                 [
+
                     # Fila 1
                     dbc.Row([
 
                         # COLE_SUBREGION: Subregión del Establecimiento
-                        create_dd('dd_cole_subregion', 'Subregión', dd_params['cole_subregion'], 'Subregión', 12),
+                        create_dd('dd_cole_subregion', 'Subregión', dd_params['cole_subregion'], 'Subregión', 6),
+
+                        # SEMAFORO_VIOL: Nivel de violencia del municipio en el que se encuentra el Establecimiento
+                        create_dd('dd_semaforo_viol', 'Nivel de violencia', dd_params['semaforo_viol'], 'Nivel de violencia', 6),
+                        
+
+                    ],style={'margin-bottom': '5px'}),
+
+                    # Fila 1
+                    dbc.Row([
 
                         # COLE_AREA_UBICACION: Área de ubicación de la Sede
                         create_dd('dd_cole_area_ubicacion', 'Área de ubicación de la Sede', dd_params['cole_area_ubicacion'], 'Área de ubic. de la Sede', 12),
@@ -164,13 +212,7 @@ layout = html.Div([
                     dbc.Row([
 
                         # FAMI_ESTRATOVIVIENDA: Estrato de la vivienda
-                        create_dd('dd_fami_estratovivienda', 'Estrato de vivienda', dd_params['fami_estratovivienda'], 'Estrato', 4),
-
-                        # FAMI_PERSONASHOGAR: Número de personas en el hogar
-                        create_dd('dd_fami_personashogar', 'Personas en hogar', dd_params['fami_personashogar'], 'N° personas', 4),
-
-                        # FAMI_CUARTOSHOGAR: Número de cuartos en el hogar
-                        create_dd('dd_fami_cuartoshogar', 'Cuartos en hogar', dd_params['fami_cuartoshogar'], 'N° cuartos', 4),
+                        create_dd('dd_fami_estratovivienda', 'Estrato de vivienda', dd_params['fami_estratovivienda'], 'Estrato', 12),
 
                     ],style={'margin-bottom': '15px'}),
 
@@ -190,6 +232,7 @@ layout = html.Div([
                             id="fami_recursos",
                             inline=False,
                             switch=True,
+                            persistence=True,
                         ),
 
                     ],style={'margin-bottom': '5px'}),
@@ -222,6 +265,7 @@ layout = html.Div([
                         {'label': 'Ciencias sociales', 'value': 'ciencias_sociales'},
                         {'label': 'Lectura crítica', 'value': 'lectura_critica'},
                         {'label': 'Inglés', 'value': 'ingles'},
+                        {'label': 'Global', 'value': 'global'}
                     ],
                     placeholder="Área del conocimiento",
                     optionHeight=35,
@@ -268,7 +312,6 @@ layout = html.Div([
         # TODO: Eliminar estos componentes de prueba
         # Mostrar valores de dropdowns seleccionados
         html.Div(id='dd-output-container', style={'margin-top': '10px'}),
-        html.Div(id='otro-componente'),
 
 
     ], className='col-md-7', style={'padding-left': '40px', 'padding-right': '40px', 'padding-top': '10px'})
@@ -287,7 +330,7 @@ layout = html.Div([
 @dash.callback(
     [
         Output('predicted-performance-chart', 'figure'),
-        Output('dd-output-container', 'children'), # TODO: Eliminar esta salida cuando se conecte con el modelo
+        # Output('dd-output-container', 'children'), # TODO: Eliminar esta salida cuando se conecte con el modelo
      ],  
     [Input(f'dd_{param}', 'value') for param in dd_params.keys()],
     [Input('fami_recursos', 'value')],
@@ -300,10 +343,6 @@ def display_selected_values(*values):
     recursos = values[-2]
     selected_area = values[-1]
 
-    # ---------------------------------------------------------------------------------------------------------------------------------------
-    # NOTA 1 PARA ZAI: ESTA PARTE LA VAMOS A CONSERVAR ASÍ PORQUE ES LA QUE SE ENCARGA DE HACER LA PREDICCIÓN -------------------------------
-    # TODO: Conectar con el modelo y hacer la predicción ------------------------------------------------------------------------------------
-    # ---------------------------------------------------------------------------------------------------------------------------------------
     # Crear un diccionario para almacenar las evidencias
     evidence = {}
 
@@ -317,38 +356,29 @@ def display_selected_values(*values):
     if recursos is not None:
         evidence['FAMI_RECURSOS'] = sum(recursos)
 
-    # # Crear un objeto de inferencia por cada una de las áreas de desempeño y condicionarlo de acuerdo con selected_area
-    # inferencia = infer.query(["Target"], evidence=evidence) # Target: éxito académico
+    # Crear un objeto de inferencia por de acuerdo al área seleccionada
+    infer = realizar_inferencia(selected_area)
+
+    # Selección de la variable objetivo del modelo y hacer query con objeto de inferencia
+    target = target_variable[selected_area]
+    inferencia = infer.query([target], evidence=evidence) # Target: éxito académico
     
-    # Variable dummy para probar el funcionamiento del gráfico
-    probability = len(evidence)*10
-    desempenho = 0
+    # Desempeño: Corresponde al índice del valor máximo en inferencia.values + 1  
+    desempenho = inferencia.values.argmax()+1
 
-    # Convertir puntaje a nivel de desempeño
-    if selected_area == None or evidence == {}:
-        desempenho = 0
-    elif probability <= 25:
-        desempenho = 1
-    elif probability <= 50:
-        desempenho = 2
-    elif probability <= 75:
-        desempenho = 3
-    else:
-        desempenho = 4
-
-    # ------------------------------------------------------------------------------------------------------------------------------------------
-    # FIN DE LA NOTA 1 PARA ZAI ----------------------------------------------------------------------------------------------------------------
-    # ------------------------------------------------------------------------------------------------------------------------------------------
+    # Impresiones de prueba
+    # print(inferencia) 
+    # print(inferencia.values)
+    # print(desempenho)
 
     # Crear el gráfico de predicción del desempeño
     fig = create_predicted_performance_chart(desempenho, selected_area)
+   
+    # # TODO: Eliminar esta salida cuando se conecte con el modelo
+    # salida = html.Pre(json.dumps(evidence, indent=4, ensure_ascii=False))
+    # return [fig, salida]
 
-    
-    # TODO: Eliminar esta salida cuando se conecte con el modelo
-    salida = html.Pre(json.dumps(evidence, indent=4, ensure_ascii=False))
-    return [fig, salida]
-
-    # return [fig]
+    return [fig]
 
 
 
@@ -363,7 +393,10 @@ def generate_radio_options(selected_area):
     if selected_area == 'ingles':
         text_values = ["A-", "A1", "A2", "B1", "B+"]
     elif selected_area != None:
-        total_blocks = 4  # Define el total de bloques según tus necesidades
+        if selected_area == 'global':
+            total_blocks = 5
+        else:
+            total_blocks = 4  # Define el total de bloques según tus necesidades
         text_values = [str(i + 1) for i in range(total_blocks)]
     else:
         text_values = []

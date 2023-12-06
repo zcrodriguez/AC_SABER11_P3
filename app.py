@@ -26,7 +26,8 @@ app.layout = html.Div([
             dbc.Nav(
                 [
                     dbc.NavItem(dbc.NavLink([html.I(className="fa fa-house")," Inicio"], href="/", active="exact")),
-                    dbc.NavItem(dbc.NavLink([html.I(className="fa fa-magnifying-glass-chart")," Visualizaciones"], href="/visualizations", active="exact",)),
+                    # Íconos interesantes: fa-landmark-dome, fa-magnifying-glass-chart
+                    dbc.NavItem(dbc.NavLink([html.I(className="fa fa-landmark-dome")," Análisis Municipal"], href="/visualizations", active="exact",)),
                 ],
                 pills=True, 
             ),

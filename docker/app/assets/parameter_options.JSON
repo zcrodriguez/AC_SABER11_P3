@@ -1,0 +1,104 @@
+{
+  "dropdown_params":{
+    "semaforo_viol": [
+      {"label":"Bajo", "value":1},
+      {"label":"Medio", "value":2},
+      {"label":"Alto", "value":3}
+    ],
+    "cole_area_ubicacion": [
+      {"label":"Urbano", "value":1},
+      {"label":"Rural", "value":2}
+    ],
+    "cole_bilingue": [
+      {"label":"NS/NR", "value":0},
+      {"label":"No", "value":1},
+      {"label":"Sí", "value":2}
+    ],
+    "cole_jornada": [
+      {"label":"Mañana", "value":1},
+      {"label":"Completa", "value":2},
+      {"label":"Tarde", "value":3},
+      {"label":"Noche", "value":4},
+      {"label":"Unica", "value":5},
+      {"label":"Sabatina", "value":6}
+    ],
+    "cole_subregion":[
+      {"label":"Oriente", "value":1},
+      {"label":"Occidente", "value":2},
+      {"label":"Suroeste", "value":3},
+      {"label":"Nordeste", "value":4},
+      {"label":"Norte", "value":5},
+      {"label":"Urabá", "value":6},
+      {"label":"Valle de Aburrá", "value":7},
+      {"label":"Bajo Cauca", "value":8},
+      {"label":"Magdalena Medio", "value":9}
+    ],
+    "estu_genero": [
+      {"label":"Masculino", "value":1},
+      {"label":"Femenino", "value":2},
+      {"label":"Otro", "value":0}
+    ],
+    "estu_edad": [
+      {"label":"12 a 15", "value":1},
+      {"label":"16 a 18", "value":2},
+      {"label":"19 a 25", "value":3},
+      {"label":"26 a 30", "value":4},
+      {"label":"31 a 35", "value":5}
+    ],
+    "fami_educacion_mop":[
+      {"label":"NS/NR", "value":0},
+      {"label":"Ninguno", "value":3},
+      {"label":"Primaria completa", "value":5},
+      {"label":"Primaria incompleta", "value":6},
+      {"label":"Secundaria (Bachillerato) completa", "value":7},
+      {"label":"Secundaria (Bachillerato) incompleta", "value":8},
+      {"label":"Técnica o tecnóloga completa", "value":9},
+      {"label":"Técnica o tecnóloga incompleta", "value":10},
+      {"label":"Educación profesional completa", "value":1},
+      {"label":"Educación profesional incompleta", "value":2},
+      {"label":"Postgrado", "value":4}
+    ],
+    "fami_estratovivienda": [
+      {"label":"NS/NR", "value":0},
+      {"label":"1", "value":1},
+      {"label":"2", "value":2},
+      {"label":"3", "value":3},
+      {"label":"4", "value":4},
+      {"label":"5", "value":5},
+      {"label":"6", "value":6}
+    ]
+  },
+  "param_name_mapping":[
+    {
+      "dd_semaforo_viol":  "SEMAFORO_VIOL",
+      "dd_cole_area_ubicacion":  "COLE_AREA_UBICACION",
+      "dd_cole_bilingue":  "COLE_BILINGUE",
+      "dd_cole_jornada":  "COLE_JORNADA",
+      "dd_estu_genero":  "ESTU_GENERO",
+      "dd_estu_edad":  "ESTU_EDAD",
+      "dd_cole_subregion":  "COLE_SUBREGION",
+      "dd_fami_educacion_mop":  "FAMI_EDUCACION_MoP",
+      "dd_fami_estratovivienda":  "FAMI_ESTRATOVIVIENDA"
+    }
+  ],
+  "area_to_model_mapping":[
+    {
+      "matematicas": "modelo_entrenado_MATH",
+      "ciencias_naturales": "modelo_entrenado_NATUR",
+      "ciencias_sociales": "modelo_entrenado_SOC",
+      "lectura_critica": "modelo_entrenado_LEC",
+      "ingles": "modelo_entrenado_ENG",
+      "global": "modelo_entrenado_Global"
+    }
+  ],
+  "target_variable":[
+    {
+      "matematicas": "PUNT_MATEMATICAS_ADJ",
+      "ciencias_naturales": "PUNT_C_NATURALES_ADJ",
+      "ciencias_sociales": "PUNT_SOCIALES_CIUDADANAS_ADJ",
+      "lectura_critica": "PUNT_LECTURA_CRITICA_ADJ",
+      "ingles": "PUNT_INGLES_ADJ",
+      "global": "PUNT_GLOBAL_ADJ"
+    }
+  ]
+}
